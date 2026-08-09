@@ -1,0 +1,43 @@
+# Render blueprint — https://render.com/docs/blueprint-spec
+#
+# The free plan gives an ephemeral filesystem, so data/bookings.json does not
+# survive a restart. That is fine here: Airtable is the durable store, and the
+# server rebuilds its local state from it on boot (see server.js).
+
+services:
+  - type: web
+    name: boreal-camps
+    runtime: node
+    plan: free
+    region: oregon
+
+    # zero runtime dependencies — nothing to install, but Render wants a build step
+    buildCommand: npm install
+    startCommand: node server.js
+
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+
+      # set these in the Render dashboard — never commit them
+      - key: AIRTABLE_TOKEN
+        sync: false
+      - key: AIRTABLE_BASE_ID
+        sync: false
+
+      - key: AIRTABLE_TABLE
+        value: Bookings
+
+      # the dashboard is public on the internet once deployed, so it needs a token.
+      # Render generates one; copy it from the dashboard to log in.
+      - key: ADMIN_TOKEN
+        generateValue: true
+
+      - key: SCHEDULER_INTERVAL_MINUTES
+        value: "15"
+      - key: REMINDER_DAYS_BEFORE
+        value: "3"
+      - key: PENDING_CHASE_HOURS
+        value: "24"

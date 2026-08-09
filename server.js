@@ -28,6 +28,7 @@ import { validateBooking } from './lib/validate.js';
 import * as store from './lib/store.js';
 import * as pipeline from './lib/pipeline.js';
 import * as scheduler from './lib/scheduler.js';
+import * as airtable from './lib/destinations/airtable.js';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const PORT = config.port;
@@ -297,6 +298,20 @@ const server = createServer(async (req, res) => {
 });
 
 await store.load();
+
+/* Rebuild local state from Airtable before accepting traffic.
+   On an ephemeral filesystem (Render free tier, containers) bookings.json is
+   gone after every restart — without this the seat counts would reset and the
+   site would oversell trips that are already full. */
+if (airtable.isEnabled()) {
+  try {
+    const added = await store.hydrate(await airtable.list());
+    if (added) console.log(`[store] restored ${added} booking(s) from Airtable`);
+  } catch (err) {
+    // Starting with a stale local copy beats not starting at all.
+    console.warn(`[store] could not read Airtable at boot: ${err.message}`);
+  }
+}
 
 server.listen(PORT, () => {
   console.log(`\n  BOREAL booking automation`);
