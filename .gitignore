@@ -6,3 +6,6 @@ data/bookings.json
 data/*.tmp
 
 node_modules/
+
+.vercel
+.env*

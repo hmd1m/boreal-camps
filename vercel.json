@@ -1,15 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
 
+  "services": {
+    "boreal-camps": {
+      "root": ".",
+      "entrypoint": "server.js",
+      "buildCommand": "npm install"
+    }
+  },
+
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/api/(.*)", "destination": "/api" }
+    {
+      "source": "/(.*)",
+      "destination": { "type": "service", "service": "boreal-camps" }
+    }
   ],
 
   "crons": [
-    {
-      "path": "/api/cron",
-      "schedule": "0 9 * * *"
-    }
+    { "path": "/api/cron", "schedule": "0 9 * * *" }
   ]
 }
