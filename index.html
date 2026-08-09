@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boreal — Guided Camping Trips Across Canada</title>
+<meta name="description" content="Small-group guided camping trips in Canada's wild places. Gear, meals and certified guides included. Algonquin, Mount Robson, Tofino.">
+<style>
+/* ══════════════════════════════════════════════════════
+   BOREAL — design tokens
+   ══════════════════════════════════════════════════════ */
+:root {
+  --ink:        #0A0E0C;
+  --ink-2:      #101614;
+  --surface:    #141B18;
+  --surface-2:  #1A2320;
+  --line:       #242F2A;
+  --line-2:     #33423B;
+
+  --sage:       #7FBF9A;
+  --sage-2:     #5EA47C;
+  --ember:      #E8A055;
+  --ember-2:    #CE8236;
+
+  --paper:      #F3F1EA;
+  --paper-mid:  #B4BEB7;
+  --paper-dim:  #7D8A83;
+
+  --r:    14px;
+  --r-lg: 22px;
+  --r-xl: 30px;
+
+  --shade: 0 26px 70px -20px rgba(0,0,0,.7);
+  --maxw:  1180px;
+  --ease:  cubic-bezier(.22,.8,.32,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+p { margin: 0; }
+h1,h2,h3,h4 { margin: 0; line-height: 1.1; font-weight: 750; letter-spacing: -.035em; }
+
+.wrap { max-width: var(--maxw); margin-inline: auto; padding-inline: 26px; }
+.section { padding: clamp(72px, 11vw, 132px) 0; }
+
+.eyebrow {
+  display: inline-block;
+  font-size: .74rem; font-weight: 700;
+  letter-spacing: .19em; text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 18px;
+}
+
+.lead { color: var(--paper-mid); font-size: clamp(1rem, 1.5vw, 1.09rem); }
+
+.head { max-width: 640px; margin-bottom: clamp(44px, 6vw, 68px); }
+.head h2 { font-size: clamp(2rem, 4.6vw, 3.15rem); margin-bottom: 18px; }
+
+/* ── reveal on scroll ── */
+.rise { opacity: 0; transform: translateY(26px); transition: opacity .85s var(--ease), transform .85s var(--ease); }
+.rise.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .rise { opacity:1; transform:none; transition:none; } }
+
+/* ══════════════════════════════════════════════════════
+   BUTTONS
+   ══════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 28px; border-radius: 999px;
+  border: 1px solid transparent;
+  font: inherit; font-size: .94rem; font-weight: 650; letter-spacing: -.01em;
+  cursor: pointer; white-space: nowrap;
+  transition: background .2s var(--ease), color .2s, border-color .2s, transform .12s;
+}
+.btn:active { transform: translateY(1px); }
+.btn-solid { background: var(--paper); color: var(--ink); }
+.btn-solid:hover { background: #fff; }
+.btn-sage  { background: var(--sage); color: #06110B; }
+.btn-sage:hover { background: var(--sage-2); }
+.btn-line  { border-color: rgba(243,241,234,.3); color: var(--paper); backdrop-filter: blur(6px); }
+.btn-line:hover { border-color: var(--paper); background: rgba(243,241,234,.08); }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn svg { width: 16px; height: 16px; }
+
+/* ══════════════════════════════════════════════════════
+   NAV
+   ══════════════════════════════════════════════════════ */
+.nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 100;
+  transition: background .35s var(--ease), border-color .35s, backdrop-filter .35s;
+  border-bottom: 1px solid transparent;
+}
+.nav.stuck {
+  background: rgba(10,14,12,.82);
+  backdrop-filter: blur(18px) saturate(1.3);
+  border-bottom-color: var(--line);
+}
+.nav-in { display: flex; align-items: center; justify-content: space-between; height: 76px; gap: 24px; }
+
+.brand { display: flex; align-items: center; gap: 11px; font-size: 1.12rem; font-weight: 750; letter-spacing: .13em; }
+.brand svg { width: 25px; height: 25px; color: var(--sage); flex: none; }
+
+.nav-links { display: flex; gap: 34px; font-size: .92rem; color: var(--paper-mid); }
+.nav-links a { position: relative; transition: color .2s; }
+.nav-links a::after {
+  content:''; position: absolute; inset: auto 0 -5px 0; height: 1.5px;
+  background: var(--sage); transform: scaleX(0); transform-origin: right;
+  transition: transform .3s var(--ease);
+}
+.nav-links a:hover { color: var(--paper); }
+.nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+@media (max-width: 880px) { .nav-links { display: none; } }
+
+/* ══════════════════════════════════════════════════════
+   HERO
+   ══════════════════════════════════════════════════════ */
+.hero { position: relative; min-height: 100svh; display: flex; align-items: flex-end; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
+.hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+.hero-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    linear-gradient(to top,   rgba(10,14,12,.98) 0%, rgba(10,14,12,.88) 22%, rgba(10,14,12,.55) 48%, rgba(10,14,12,.15) 78%),
+    linear-gradient(to right, rgba(10,14,12,.80) 0%, rgba(10,14,12,.35) 45%, rgba(10,14,12,0) 75%);
+}
+.hero-in { position: relative; z-index: 2; width: 100%; padding-bottom: clamp(56px, 8vw, 92px); padding-top: 130px; }
+
+.hero h1 {
+  font-size: clamp(2.6rem, 7.4vw, 5.6rem);
+  max-width: 15ch;
+  margin-bottom: 26px;
+  text-wrap: balance;
+}
+.hero h1 em { font-style: normal; color: var(--sage); }
+.hero-sub { max-width: 46ch; font-size: clamp(1.02rem, 1.9vw, 1.22rem); color: rgba(243,241,234,.8); margin-bottom: 36px; }
+.hero-cta { display: flex; gap: 13px; flex-wrap: wrap; }
+
+.scroll-cue {
+  position: absolute; z-index: 3; bottom: 30px; right: 30px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: .74rem; letter-spacing: .17em; text-transform: uppercase; color: rgba(243,241,234,.5);
+}
+.scroll-cue span { width: 44px; height: 1px; background: rgba(243,241,234,.35); position: relative; overflow: hidden; }
+.scroll-cue span::after {
+  content:''; position: absolute; inset: 0; background: var(--sage);
+  animation: sweep 2.4s var(--ease) infinite;
+}
+@keyframes sweep { 0% { transform: translateX(-100%);} 60%,100% { transform: translateX(100%);} }
+@media (max-width: 700px) { .scroll-cue { display: none; } }
+
+/* ══════════════════════════════════════════════════════
+   STATS STRIP
+   ══════════════════════════════════════════════════════ */
+.strip { border-bottom: 1px solid var(--line); background: var(--ink-2); }
+.strip-in { display: grid; grid-template-columns: repeat(4, 1fr); }
+.stat { padding: 40px 26px; border-inline-start: 1px solid var(--line); }
+.stat:first-child { border-inline-start: none; }
+.stat-n { font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 750; letter-spacing: -.04em; line-height: 1; margin-bottom: 8px; }
+.stat-l { font-size: .82rem; color: var(--paper-dim); letter-spacing: .02em; }
+@media (max-width: 760px) {
+  .strip-in { grid-template-columns: repeat(2, 1fr); }
+  .stat:nth-child(3) { border-inline-start: none; }
+  .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+
+/* ══════════════════════════════════════════════════════
+   TRIPS
+   ══════════════════════════════════════════════════════ */
+.trip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 26px; }
+
+.trip {
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  transition: transform .4s var(--ease), border-color .4s, box-shadow .4s;
+}
+.trip:hover { transform: translateY(-7px); border-color: var(--line-2); box-shadow: var(--shade); }
+
+.trip-ph { position: relative; aspect-ratio: 4/3; overflow: hidden; }
+.trip-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+.trip:hover .trip-ph img { transform: scale(1.07); }
+.trip-ph::after {
+  content:''; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,14,12,.85), transparent 55%);
+}
+
+.chip {
+  position: absolute; z-index: 2; top: 16px; left: 16px;
+  background: rgba(10,14,12,.6); backdrop-filter: blur(10px);
+  border: 1px solid rgba(243,241,234,.18);
+  padding: 6px 14px; border-radius: 999px;
+  font-size: .74rem; font-weight: 650; letter-spacing: .04em;
+}
+
+.trip-where {
+  position: absolute; z-index: 2; left: 22px; right: 22px; bottom: 18px;
+  display: flex; align-items: center; gap: 7px;
+  font-size: .82rem; color: rgba(243,241,234,.85); letter-spacing: .03em;
+}
+.trip-where svg { width: 14px; height: 14px; flex: none; }
+
+.trip-body { padding: 26px; display: flex; flex-direction: column; flex: 1; }
+.trip h3 { font-size: 1.5rem; margin-bottom: 11px; }
+.trip-desc { font-size: .94rem; color: var(--paper-mid); margin-bottom: 22px; }
+
+.trip-meta {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+  padding: 19px 0; margin-bottom: 22px;
+  border-block: 1px solid var(--line);
+}
+.mk { font-size: .71rem; letter-spacing: .1em; text-transform: uppercase; color: var(--paper-dim); margin-bottom: 3px; }
+.mv { font-size: .9rem; font-weight: 620; }
+
+.trip-foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.price { font-size: 1.55rem; font-weight: 750; letter-spacing: -.035em; line-height: 1.1; }
+.price small { font-size: .78rem; font-weight: 500; color: var(--paper-dim); letter-spacing: 0; }
+.left { font-size: .81rem; color: var(--paper-dim); display: flex; align-items: center; gap: 7px; margin-top: 9px; }
+.pip { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); flex: none; }
+.pip.warn { background: var(--ember); box-shadow: 0 0 0 4px rgba(232,160,85,.16); }
+
+/* ══════════════════════════════════════════════════════
+   INCLUDED
+   ══════════════════════════════════════════════════════ */
+.included { background: var(--ink-2); border-block: 1px solid var(--line); }
+.incl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.incl { background: var(--ink-2); padding: 32px 28px; transition: background .3s; }
+.incl:hover { background: var(--surface); }
+.incl-ic { width: 40px; height: 40px; color: var(--sage); margin-bottom: 18px; }
+.incl-ic svg { width: 100%; height: 100%; }
+.incl h3 { font-size: 1.04rem; margin-bottom: 9px; letter-spacing: -.02em; }
+.incl p { font-size: .9rem; color: var(--paper-mid); }
+
+/* ══════════════════════════════════════════════════════
+   QUOTE BAND (photo)
+   ══════════════════════════════════════════════════════ */
+.band { position: relative; min-height: 62vh; display: grid; place-items: center; overflow: hidden; }
+.band-bg { position: absolute; inset: 0; }
+.band-bg img { width: 100%; height: 100%; object-fit: cover; }
+.band-bg::after { content:''; position:absolute; inset:0; background: rgba(10,14,12,.68); }
+.band-in { position: relative; z-index: 2; text-align: center; max-width: 760px; padding: 90px 26px; }
+.band blockquote { margin: 0 0 24px; font-size: clamp(1.4rem, 3.4vw, 2.3rem); font-weight: 700; letter-spacing: -.035em; line-height: 1.28; text-wrap: balance; }
+.band cite { font-style: normal; font-size: .86rem; letter-spacing: .13em; text-transform: uppercase; color: var(--paper-dim); }
+
+/* ══════════════════════════════════════════════════════
+   RULES
+   ══════════════════════════════════════════════════════ */
+.rules-lay { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(38px, 6vw, 80px); align-items: start; }
+@media (max-width: 940px) { .rules-lay { grid-template-columns: 1fr; } }
+
+.rule { display: flex; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.rule:last-child { border-bottom: none; padding-bottom: 0; }
+.rule-n { flex: none; font-size: .8rem; font-weight: 750; color: var(--sage); letter-spacing: .08em; padding-top: 4px; min-width: 26px; }
+.rule h4 { font-size: 1.02rem; margin-bottom: 5px; letter-spacing: -.02em; }
+.rule p { font-size: .91rem; color: var(--paper-mid); }
+
+.card-note {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: 26px;
+}
+.card-note + .card-note { margin-top: 16px; }
+.card-note h4 { font-size: 1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.card-note h4 svg { width: 17px; height: 17px; color: var(--ember); flex: none; }
+.card-note p { font-size: .9rem; color: var(--paper-mid); }
+
+/* ══════════════════════════════════════════════════════
+   CTA
+   ══════════════════════════════════════════════════════ */
+.cta { position: relative; overflow: hidden; }
+.cta-bg { position: absolute; inset: 0; }
+.cta-bg img { width: 100%; height: 100%; object-fit: cover; }
+.cta-bg::after { content:''; position:absolute; inset:0; background: linear-gradient(to top, rgba(10,14,12,.96), rgba(10,14,12,.74)); }
+.cta-in { position: relative; z-index: 2; text-align: center; padding: clamp(80px, 11vw, 140px) 26px; }
+.cta h2 { font-size: clamp(2rem, 5vw, 3.4rem); margin-bottom: 18px; text-wrap: balance; }
+.cta p { color: var(--paper-mid); max-width: 46ch; margin: 0 auto 34px; }
+
+/* ══════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════ */
+.foot { border-top: 1px solid var(--line); padding: 44px 0; background: var(--ink); }
+.foot-in { display: flex; justify-content: space-between; align-items: center; gap: 22px; flex-wrap: wrap; }
+.foot p { font-size: .84rem; color: var(--paper-dim); }
+
+/* ══════════════════════════════════════════════════════
+   MODAL
+   ══════════════════════════════════════════════════════ */
+dialog {
+  padding: 0; border: none; background: transparent; color: var(--paper);
+  /* fill the viewport and centre the sheet — keeps the sheet height-bounded
+     so its body can scroll instead of overflowing off-screen */
+  position: fixed; inset: 0;
+  width: 100vw;  max-width: 100vw;
+  height: 100dvh; max-height: 100dvh;
+  overflow: hidden;
+}
+dialog[open] { display: grid; place-items: center; }
+dialog::backdrop { background: rgba(4,7,5,.78); backdrop-filter: blur(7px); }
+
+.sheet {
+  width: min(580px, calc(100vw - 28px));
+  max-height: min(88dvh, 880px);
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shade);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.sheet-hd { position: relative; flex: none; }
+
+/* the form sits between .sheet and .sheet-bd, so it has to pass the height
+   constraint through — otherwise the scroll container below never bounds */
+#regForm { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.sheet-hero { height: 128px; position: relative; overflow: hidden; }
+.sheet-hero img { width: 100%; height: 100%; object-fit: cover; }
+.sheet-hero::after { content:''; position:absolute; inset:0; background: linear-gradient(to top, var(--surface), rgba(20,27,24,.35)); }
+.sheet-ttl { position: absolute; z-index: 2; left: 28px; right: 68px; bottom: 16px; }
+.sheet-ttl h2 { font-size: 1.32rem; margin-bottom: 3px; }
+.sheet-ttl p { font-size: .84rem; color: var(--paper-mid); }
+
+.x {
+  position: absolute; z-index: 3; top: 16px; right: 16px;
+  width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(10,14,12,.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(243,241,234,.2);
+  color: var(--paper); cursor: pointer;
+  display: grid; place-items: center; transition: background .2s;
+}
+.x:hover { background: rgba(10,14,12,.9); }
+.x svg { width: 15px; height: 15px; }
+
+/* min-height:0 is required — without it this flex child refuses to shrink below
+   its content height, so overflow-y never engages and the sheet grows off-screen */
+.sheet-bd { padding: 26px 28px; overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; min-height: 0; }
+.sheet-ft { padding: 18px 28px 24px; border-top: 1px solid var(--line); flex: none; }
+
+fieldset { border: none; margin: 0 0 28px; padding: 0; }
+legend { padding: 0; margin-bottom: 15px; font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--paper-dim); }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+@media (max-width: 540px) { .row { grid-template-columns: 1fr; } }
+
+.f { margin-bottom: 15px; }
+.f:last-child { margin-bottom: 0; }
+label { display: block; margin-bottom: 7px; font-size: .84rem; font-weight: 620; color: var(--paper-mid); }
+label .opt { font-weight: 400; color: var(--paper-dim); }
+
+input[type=text], input[type=email], input[type=tel], input[type=number], select, textarea {
+  width: 100%; padding: 12px 14px;
+  background: var(--ink); color: var(--paper);
+  border: 1px solid var(--line); border-radius: var(--r);
+  font: inherit; font-size: .93rem;
+  transition: border-color .18s, box-shadow .18s;
+}
+select { cursor: pointer; }
+textarea { resize: vertical; min-height: 80px; }
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(127,191,154,.18);
+}
+input[aria-invalid=true], select[aria-invalid=true] { border-color: var(--ember); }
+::placeholder { color: #5C6B63; }
+
+.err { display: none; font-size: .79rem; color: var(--ember); margin-top: 6px; }
+.err.on { display: block; }
+
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 540px) { .checks { grid-template-columns: 1fr; } }
+.check {
+  display: flex; align-items: center; gap: 11px;
+  padding: 12px 14px; border-radius: var(--r);
+  background: var(--ink); border: 1px solid var(--line);
+  cursor: pointer; font-size: .88rem; transition: border-color .18s, background .18s;
+}
+.check:hover { border-color: var(--line-2); }
+.check input { accent-color: var(--sage); width: 16px; height: 16px; cursor: pointer; flex: none; }
+.check:has(input:checked) { border-color: var(--sage); background: rgba(127,191,154,.07); }
+.check .amt { margin-left: auto; font-size: .8rem; color: var(--paper-dim); }
+
+.sum { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; margin-bottom: 22px; }
+.sum-r { display: flex; justify-content: space-between; gap: 16px; font-size: .89rem; padding: 4px 0; }
+.sum-r > span:first-child { color: var(--paper-mid); }
+.sum-r.tot { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 12px; font-weight: 700; font-size: 1.02rem; }
+
+.agree { display: flex; gap: 12px; align-items: flex-start; font-size: .87rem; color: var(--paper-mid); }
+.agree input { accent-color: var(--sage); width: 17px; height: 17px; margin-top: 4px; cursor: pointer; flex: none; }
+.agree a { color: var(--sage); text-decoration: underline; text-underline-offset: 3px; }
+
+.note { padding: 12px 15px; border-radius: var(--r); font-size: .87rem; margin-bottom: 16px; display: none; }
+.note.on { display: block; }
+.note.bad { background: rgba(232,160,85,.11); color: var(--ember); border: 1px solid rgba(232,160,85,.32); }
+
+.done { text-align: center; padding: 52px 30px; display: none; }
+.done.on { display: block; }
+.done-ic {
+  width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 22px;
+  background: rgba(127,191,154,.14); color: var(--sage);
+  display: grid; place-items: center;
+}
+.done-ic svg { width: 30px; height: 30px; }
+.done h3 { font-size: 1.42rem; margin-bottom: 12px; }
+.done p { color: var(--paper-mid); font-size: .93rem; margin-bottom: 6px; }
+.ref {
+  display: inline-block; margin-top: 18px;
+  background: var(--surface-2); border: 1px solid var(--line-2);
+  border-radius: 10px; padding: 9px 18px;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: .95rem; letter-spacing: .09em; color: var(--sage);
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════  NAV  ═══════════════ -->
+<nav class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a href="#" class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 21h18L12 2Z"/><path d="M12 11.5 7 21h10l-5-9.5Z"/></svg>
+      BOREAL
+    </a>
+    <div class="nav-links">
+      <a href="#trips">Trips</a>
+      <a href="#included">What's Included</a>
+      <a href="#rules">Know Before You Go</a>
+    </div>
+    <button class="btn btn-solid" data-open="">Book a trip</button>
+  </div>
+</nav>
+
+<!-- ═══════════════  HERO  ═══════════════ -->
+<header class="hero">
+  <div class="hero-bg"><img id="ph-hero" alt="Tents pitched beside a river at golden hour in the Canadian boreal forest" fetchpriority="high"></div>
+  <div class="wrap hero-in">
+    <span class="eyebrow rise">2026 Season · Now Booking</span>
+    <h1 class="rise">Sleep where the <em>map runs out</em></h1>
+    <p class="hero-sub rise">
+      Small-group guided camping trips across Canada's wildest corners.
+      Tents, meals, and certified guides are handled — you just show up.
+    </p>
+    <div class="hero-cta rise">
+      <button class="btn btn-sage" data-open="">
+        Find your trip
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <a class="btn btn-line" href="#trips">See the season</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><span></span> Scroll</div>
+</header>
+
+<!-- ═══════════════  STATS  ═══════════════ -->
+<section class="strip">
+  <div class="wrap strip-in">
+    <div class="stat"><div class="stat-n">9</div><div class="stat-l">Backcountry sites</div></div>
+    <div class="stat"><div class="stat-n">12</div><div class="stat-l">Certified guides</div></div>
+    <div class="stat"><div class="stat-n">1,400+</div><div class="stat-l">Campers since 2021</div></div>
+    <div class="stat"><div class="stat-n">16</div><div class="stat-l">Max group size</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════  TRIPS  ═══════════════ -->
+<section class="section" id="trips">
+  <div class="wrap">
+    <div class="head rise">
+      <span class="eyebrow">The 2026 Season</span>
+      <h2>Three trips. Three ways to get lost.</h2>
+      <p class="lead">Every departure caps at sixteen people — quiet campsites, real conversations, and a guide who actually knows your name.</p>
+    </div>
+
+    <div class="trip-grid">
+
+      <!-- ── Algonquin ── -->
+      <article class="trip rise">
+        <div class="trip-ph">
+          <img id="ph-t1" alt="Lakeside campsite in Algonquin Provincial Park">
+          <span class="chip">Easy · Family friendly</span>
+          <div class="trip-where">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            Algonquin Provincial Park, Ontario
+          </div>
+        </div>
+        <div class="trip-body">
+          <h3>Algonquin Lakes</h3>
+          <p class="trip-desc">Paddle between glassy lakes, portage through old-growth pine, and fall asleep to loons. The gentlest way into Canadian backcountry.</p>
+          <div class="trip-meta">
+            <div><div class="mk">Length</div><div class="mv">3 days / 2 nights</div></div>
+            <div><div class="mk">Departs</div><div class="mv">Sept 12</div></div>
+            <div><div class="mk">Daily distance</div><div class="mv">6 km paddle</div></div>
+            <div><div class="mk">Group</div><div class="mv">16 max</div></div>
+          </div>
+          <div class="trip-foot">
+            <div>
+              <div class="price">$340 <small>CAD / person</small></div>
+              <div class="left" data-seats="algonquin"><span class="pip"></span> 7 spots left</div>
+            </div>
+            <button class="btn btn-sage" data-open="algonquin">Book</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── Berg Lake ── -->
+      <article class="trip rise">
+        <div class="trip-ph">
+          <img id="ph-t2" alt="Alpine campsite below Mount Robson, British Columbia">
+          <span class="chip">Advanced · Fitness required</span>
+          <div class="trip-where">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            Mount Robson Park, British Columbia
+          </div>
+        </div>
+        <div class="trip-body">
+          <h3>Berg Lake Traverse</h3>
+          <p class="trip-desc">Twenty-three kilometres up to a turquoise lake under the tallest peak in the Rockies. Glacier calving as your alarm clock.</p>
+          <div class="trip-meta">
+            <div><div class="mk">Length</div><div class="mv">5 days / 4 nights</div></div>
+            <div><div class="mk">Departs</div><div class="mv">Sept 26</div></div>
+            <div><div class="mk">Daily distance</div><div class="mv">14 km hike</div></div>
+            <div><div class="mk">Group</div><div class="mv">10 max</div></div>
+          </div>
+          <div class="trip-foot">
+            <div>
+              <div class="price">$890 <small>CAD / person</small></div>
+              <div class="left" data-seats="berglake"><span class="pip warn"></span> 2 spots left</div>
+            </div>
+            <button class="btn btn-sage" data-open="berglake">Book</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── Tofino ── -->
+      <article class="trip rise">
+        <div class="trip-ph">
+          <img id="ph-t3" alt="Rainforest campsite near Tofino on Vancouver Island">
+          <span class="chip">Moderate · Weekend</span>
+          <div class="trip-where">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            Tofino, Vancouver Island, BC
+          </div>
+        </div>
+        <div class="trip-body">
+          <h3>Tofino Rainforest</h3>
+          <p class="trip-desc">Moss, mist, and Pacific surf. Two days between temperate rainforest and open coast, with a cedar-smoke fire each night.</p>
+          <div class="trip-meta">
+            <div><div class="mk">Length</div><div class="mv">2 days / 1 night</div></div>
+            <div><div class="mk">Departs</div><div class="mv">Sept 5</div></div>
+            <div><div class="mk">Daily distance</div><div class="mv">8 km hike</div></div>
+            <div><div class="mk">Group</div><div class="mv">14 max</div></div>
+          </div>
+          <div class="trip-foot">
+            <div>
+              <div class="price">$420 <small>CAD / person</small></div>
+              <div class="left" data-seats="tofino"><span class="pip"></span> 9 spots left</div>
+            </div>
+            <button class="btn btn-sage" data-open="tofino">Book</button>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════  INCLUDED  ═══════════════ -->
+<section class="section included" id="included">
+  <div class="wrap">
+    <div class="head rise">
+      <span class="eyebrow">What's Included</span>
+      <h2>One price. Nothing hidden.</h2>
+      <p class="lead">Everything below is covered from the moment we leave the trailhead. Optional gear rentals are yours to pick at checkout.</p>
+    </div>
+
+    <div class="incl-grid rise">
+      <div class="incl">
+        <div class="incl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 21h18L12 2Z"/><path d="M12 11.5 7 21h10l-5-9.5Z"/></svg></div>
+        <h3>Tents & sleep systems</h3>
+        <p>Four-season tent per two people, temperature-rated sleeping bag, and an insulated pad. Set up before you arrive.</p>
+      </div>
+      <div class="incl">
+        <div class="incl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v5M16 3v5M4 12h16M6 8h12v12H6Z"/></svg></div>
+        <h3>Three meals a day</h3>
+        <p>Cooked fresh at camp. Vegetarian, vegan and gluten-free handled — just flag it when you book.</p>
+      </div>
+      <div class="incl">
+        <div class="incl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Guide & wilderness medic</h3>
+        <p>A certified guide on every departure, with at least one Wilderness First Responder in the group.</p>
+      </div>
+      <div class="incl">
+        <div class="incl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="15" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3Z"/></svg></div>
+        <h3>Return transport</h3>
+        <p>Shuttle from the meeting point in Toronto, Vancouver or Jasper, depending on the trip — both directions.</p>
+      </div>
+      <div class="incl">
+        <div class="incl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>Trip insurance</h3>
+        <p>Accident coverage for every day on trail, active the moment the shuttle pulls away.</p>
+      </div>
+      <div class="incl">
+        <div class="incl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20s2-6 8-6 8 6 8 6"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <h3>Genuinely small groups</h3>
+        <p>Sixteen people, hard cap. Quiet camps, light footprint, and a guide with time for everyone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════  QUOTE BAND  ═══════════════ -->
+<section class="band">
+  <div class="band-bg"><img id="ph-band" alt="Campfire burning at a forest campsite at dusk"></div>
+  <div class="band-in">
+    <blockquote class="rise">"We came for the lake. We stayed up for the sky."</blockquote>
+    <cite class="rise">Marielle D. · Berg Lake Traverse, 2025</cite>
+  </div>
+</section>
+
+<!-- ═══════════════  RULES  ═══════════════ -->
+<section class="section" id="rules">
+  <div class="wrap rules-lay">
+    <div class="rise">
+      <span class="eyebrow">Know Before You Go</span>
+      <h2 style="font-size:clamp(2rem,4.6vw,3.15rem);margin-bottom:18px">Camp rules</h2>
+      <p class="lead" style="margin-bottom:26px">Six simple things that keep everyone safe and leave the forest exactly as we found it.</p>
+
+      <div class="card-note">
+        <h4>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5v.01"/></svg>
+          Cancellation policy
+        </h4>
+        <p>Full refund up to 10 days before departure, 50% up to 4 days. Weather cancellations are refunded in full, any time.</p>
+      </div>
+      <div class="card-note">
+        <h4>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11Z"/></svg>
+          No payment today
+        </h4>
+        <p>Booking holds your spot for 48 hours. We call to confirm details and arrange payment before anything is charged.</p>
+      </div>
+    </div>
+
+    <div class="rise">
+      <div class="rule"><div class="rule-n">01</div><div><h4>Leave no trace</h4><p>Everything you pack in comes back out with you. No cutting live wood, no exceptions.</p></div></div>
+      <div class="rule"><div class="rule-n">02</div><div><h4>Fires in rings only</h4><p>Your guide picks the fire site. It gets fully drowned before anyone sleeps.</p></div></div>
+      <div class="rule"><div class="rule-n">03</div><div><h4>Quiet after midnight</h4><p>No speakers after 12. Sound carries further than you'd think out there — and wildlife notices.</p></div></div>
+      <div class="rule"><div class="rule-n">04</div><div><h4>Kids welcome from 8</h4><p>On easy-rated trips, with a parent or guardian present the entire time.</p></div></div>
+      <div class="rule"><div class="rule-n">05</div><div><h4>Tell us about your health</h4><p>Allergies, medication, past injuries — put it in the booking form. Only the guide and medic ever see it.</p></div></div>
+      <div class="rule"><div class="rule-n">06</div><div><h4>No alcohol, no firearms</h4><p>At every site. Breaking this ends your trip immediately, without refund.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════  CTA  ═══════════════ -->
+<section class="cta">
+  <div class="cta-bg"><img id="ph-cta" alt="Tent glowing under a night sky full of stars"></div>
+  <div class="wrap cta-in">
+    <h2 class="rise">The season is short. The nights are worth it.</h2>
+    <p class="rise">Booking takes about two minutes, and nothing is charged today. We'll call within 24 hours to confirm your spot.</p>
+    <button class="btn btn-sage rise" data-open="">
+      Book your spot
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════  FOOTER  ═══════════════ -->
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="brand" style="font-size:1rem">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 21h18L12 2Z"/><path d="M12 11.5 7 21h10l-5-9.5Z"/></svg>
+      BOREAL
+    </div>
+    <p>Portfolio demo — booking automation showcase. Not a real outfitter; no data is used commercially.</p>
+  </div>
+</footer>
+
+<!-- ═══════════════  BOOKING MODAL  ═══════════════ -->
+<dialog id="modal">
+  <div class="sheet">
+
+    <div class="sheet-hd">
+      <div class="sheet-hero"><img id="ph-sheet" alt=""></div>
+      <button class="x" id="closeBtn" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="sheet-ttl">
+        <h2 id="sheetTitle">Book a trip</h2>
+        <p>Takes two minutes · Nothing charged today</p>
+      </div>
+    </div>
+
+    <form id="regForm" novalidate>
+      <div class="sheet-bd" id="formBody">
+
+        <div class="note" id="note"></div>
+
+        <fieldset>
+          <legend>Your trip</legend>
+          <div class="f">
+            <label for="trip">Trip</label>
+            <select id="trip" name="trip" required>
+              <option value="">— Select a trip —</option>
+              <option value="algonquin">Algonquin Lakes — 3 days — $340</option>
+              <option value="berglake">Berg Lake Traverse — 5 days — $890</option>
+              <option value="tofino">Tofino Rainforest — 2 days — $420</option>
+            </select>
+            <div class="err" id="err-trip">Please choose a trip.</div>
+          </div>
+          <div class="f">
+            <label for="people">Number of people</label>
+            <input type="number" id="people" name="people" min="1" max="8" value="1" required>
+            <div class="err" id="err-people">Must be between 1 and 8.</div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Your details</legend>
+          <div class="f">
+            <label for="name">Full name</label>
+            <input type="text" id="name" name="name" required placeholder="Alex Tremblay">
+            <div class="err" id="err-name">Please enter your full name.</div>
+          </div>
+          <div class="row">
+            <div class="f">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" required placeholder="(604) 555-0142">
+              <div class="err" id="err-phone">Enter a valid phone number.</div>
+            </div>
+            <div class="f">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required placeholder="you@example.com">
+              <div class="err" id="err-email">Enter a valid email address.</div>
+            </div>
+          </div>
+          <div class="f">
+            <label for="city">City <span class="opt">(optional)</span></label>
+            <input type="text" id="city" name="city" placeholder="Vancouver, BC">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Gear rental <span style="text-transform:none;letter-spacing:0;font-weight:400">— optional</span></legend>
+          <div class="checks">
+            <label class="check"><input type="checkbox" name="gear" value="tent" data-price="35"> Extra tent <span class="amt">$35</span></label>
+            <label class="check"><input type="checkbox" name="gear" value="sleeping-bag" data-price="25"> Sleeping bag <span class="amt">$25</span></label>
+            <label class="check"><input type="checkbox" name="gear" value="backpack" data-price="30"> 60L backpack <span class="amt">$30</span></label>
+            <label class="check"><input type="checkbox" name="gear" value="boots" data-price="40"> Hiking boots <span class="amt">$40</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Safety</legend>
+          <div class="row">
+            <div class="f">
+              <label for="emName">Emergency contact</label>
+              <input type="text" id="emName" name="emergencyName" required placeholder="Name">
+              <div class="err" id="err-emName">Required.</div>
+            </div>
+            <div class="f">
+              <label for="emPhone">Their phone</label>
+              <input type="tel" id="emPhone" name="emergencyPhone" required placeholder="(416) 555-0198">
+              <div class="err" id="err-emPhone">Enter a valid phone number.</div>
+            </div>
+          </div>
+          <div class="f">
+            <label for="notes">Allergies, medication or dietary needs <span class="opt">(optional)</span></label>
+            <textarea id="notes" name="notes" placeholder="e.g. vegetarian, nut allergy, asthma inhaler…"></textarea>
+          </div>
+        </fieldset>
+
+        <div class="sum" id="sum">
+          <div class="sum-r"><span>Trip</span><span id="sumTrip">—</span></div>
+          <div class="sum-r"><span>People</span><span id="sumPeople">1</span></div>
+          <div class="sum-r"><span>Gear rental</span><span id="sumGear">None</span></div>
+          <div class="sum-r tot"><span>Estimated total</span><span id="sumTotal">—</span></div>
+        </div>
+
+        <label class="agree">
+          <input type="checkbox" id="agree" name="agree" required>
+          <span>I've read the <a href="#rules" id="rulesLink">camp rules</a> and cancellation policy, and I agree to them.</span>
+        </label>
+        <div class="err" id="err-agree">You'll need to agree to continue.</div>
+
+      </div>
+
+      <div class="sheet-ft">
+        <button type="submit" class="btn btn-sage btn-block" id="submitBtn">Request my spot</button>
+      </div>
+    </form>
+
+    <div class="done" id="done">
+      <div class="done-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h3>You're on the list</h3>
+      <p>We'll call within 24 hours to confirm your spot and sort out payment.</p>
+      <p>Keep this reference in case you need to reach us:</p>
+      <div class="ref" id="refCode">—</div>
+      <div style="margin-top:28px"><button class="btn btn-line" id="doneClose">Done</button></div>
+    </div>
+
+  </div>
+</dialog>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   PHOTOGRAPHY
+   Swap any of these to restyle the whole page.
+   ═══════════════════════════════════════════════════ */
+const U = 'https://images.unsplash.com/';
+const Q = (w) => `?auto=format&fit=crop&q=80&w=${w}`;
+
+/* Chosen by measured luminance, not by eye. The number in each comment is the
+   average brightness (0–255) of the region the overlaid text actually sits on —
+   lower is safer for white type. Anything above ~70 there needs a heavier scrim. */
+const PHOTOS = {
+  hero:  'photo-1510312305653-8ed496efae75',  // campfire at dusk    · text zone 36
+  t1:    'photo-1487730116645-74489c95b41b',  // forest lake shore   · 114 (caption only)
+  t2:    'photo-1445308394109-4ec2920981b1',  // alpine camp         · 132 (caption only)
+  t3:    'photo-1441974231531-c6227db76b6e',  // sunlit rainforest   · 56
+  band:  'photo-1496545672447-f699b503d270',  // waterfall           · 91 + .68 scrim
+  cta:   'photo-1504280390367-361c6d9f38f4',  // tents, mountains    · 99 + heavy scrim
+  sheet: 'photo-1508873696983-2dfd5898f08b',  // river through pines · 131 (fades out)
+};
+
+const SIZE = { hero: 2000, t1: 800, t2: 800, t3: 800, band: 1800, cta: 1800, sheet: 900 };
+
+Object.entries(PHOTOS).forEach(([key, id]) => {
+  const el = document.getElementById('ph-' + key);
+  if (el) el.src = U + id + Q(SIZE[key]);
+});
+
+/* ═══════════════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════════════ */
+const TRIPS = {
+  algonquin: { label: 'Algonquin Lakes',     price: 340 },
+  berglake:  { label: 'Berg Lake Traverse',  price: 890 },
+  tofino:    { label: 'Tofino Rainforest',   price: 420 },
+};
+
+const GEAR = {
+  'tent':         'Extra tent',
+  'sleeping-bag': 'Sleeping bag',
+  'backpack':     '60L backpack',
+  'boots':        'Hiking boots',
+};
+
+/* Relative path — the booking server serves this page too, so requests stay
+   same-origin and never hit a CORS preflight. */
+const ENDPOINT     = '/api/bookings';
+const AVAILABILITY = '/api/availability';
+
+/* ═══════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════ */
+const $  = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+const money = (n) => '$' + n.toLocaleString('en-CA');
+
+/* ═══════════════════════════════════════════════════
+   NAV + SCROLL REVEAL
+   ═══════════════════════════════════════════════════ */
+const nav = $('#nav');
+addEventListener('scroll', () => nav.classList.toggle('stuck', scrollY > 20), { passive: true });
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (!e.isIntersecting) return;
+    setTimeout(() => e.target.classList.add('in'), i * 90);
+    io.unobserve(e.target);
+  });
+}, { threshold: .12, rootMargin: '0px 0px -60px' });
+
+$$('.rise').forEach(el => io.observe(el));
+
+/* ═══════════════════════════════════════════════════
+   MODAL
+   ═══════════════════════════════════════════════════ */
+const modal   = $('#modal');
+const form    = $('#regForm');
+const doneBox = $('#done');
+const tripSel = $('#trip');
+
+function openModal(key) {
+  form.style.display = '';
+  doneBox.classList.remove('on');
+  $('#note').className = 'note';
+
+  if (key && TRIPS[key]) tripSel.value = key;
+
+  recalc();
+  modal.showModal();
+  document.body.style.overflow = 'hidden';   // stop the page scrolling behind the sheet
+}
+
+modal.addEventListener('close', () => { document.body.style.overflow = ''; });
+
+$$('[data-open]').forEach(b => b.addEventListener('click', () => openModal(b.dataset.open)));
+$('#closeBtn').addEventListener('click', () => modal.close());
+$('#doneClose').addEventListener('click', () => modal.close());
+$('#rulesLink').addEventListener('click', () => modal.close());
+modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+
+/* ═══════════════════════════════════════════════════
+   LIVE PRICE SUMMARY
+   ═══════════════════════════════════════════════════ */
+function selectedGear() {
+  return [...$$('input[name=gear]:checked')].map(c => ({
+    value: c.value, label: GEAR[c.value], price: +c.dataset.price,
+  }));
+}
+
+function recalc() {
+  const trip   = TRIPS[tripSel.value];
+  const people = Math.max(1, Math.min(8, +$('#people').value || 1));
+  const gear   = selectedGear();
+
+  $('#sumTrip').textContent   = trip ? trip.label : '—';
+  $('#sumPeople').textContent = people;
+  $('#sumGear').textContent   = gear.length ? gear.map(g => g.label).join(', ') : 'None';
+
+  $('#sheetTitle').textContent = trip ? trip.label : 'Book a trip';
+
+  if (trip) {
+    const gearTotal = gear.reduce((s, g) => s + g.price, 0) * people;
+    $('#sumTotal').textContent = money(trip.price * people + gearTotal) + ' CAD';
+  } else {
+    $('#sumTotal').textContent = '—';
+  }
+}
+
+form.addEventListener('input', recalc);
+form.addEventListener('change', recalc);
+
+/* ═══════════════════════════════════════════════════
+   VALIDATION
+   ═══════════════════════════════════════════════════ */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const digits = (s) => s.replace(/\D/g, '');
+
+function mark(id, bad) {
+  const box = $('#err-' + id);
+  if (box) box.classList.toggle('on', bad);
+  const input = $('#' + id);
+  if (input) input.setAttribute('aria-invalid', bad ? 'true' : 'false');
+  return !bad;
+}
+
+function validate() {
+  const people = +$('#people').value;
+  const checks = [
+    mark('trip',    !tripSel.value),
+    mark('people',  !(people >= 1 && people <= 8)),
+    mark('name',    $('#name').value.trim().length < 2),
+    mark('phone',   digits($('#phone').value).length < 10),
+    mark('email',   !EMAIL_RE.test($('#email').value.trim())),
+    mark('emName',  $('#emName').value.trim().length < 2),
+    mark('emPhone', digits($('#emPhone').value).length < 10),
+    mark('agree',   !$('#agree').checked),
+  ];
+  return checks.every(Boolean);
+}
+
+/* ═══════════════════════════════════════════════════
+   SUBMIT
+   ═══════════════════════════════════════════════════ */
+const btn  = $('#submitBtn');
+const note = $('#note');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (!validate()) {
+    note.textContent = 'Some fields need a second look.';
+    note.className = 'note on bad';
+    $('#formBody').scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  const trip   = TRIPS[tripSel.value];
+  const people = +$('#people').value;
+  const gear   = selectedGear();
+  const gearTotal = gear.reduce((s, g) => s + g.price, 0) * people;
+
+  const payload = {
+    trip:      { key: tripSel.value, label: trip.label, unitPrice: trip.price },
+    people,
+    contact: {
+      name:  $('#name').value.trim(),
+      phone: $('#phone').value.trim(),
+      email: $('#email').value.trim(),
+      city:  $('#city').value.trim() || null,
+    },
+    gear: gear.map(g => g.value),
+    emergency: { name: $('#emName').value.trim(), phone: $('#emPhone').value.trim() },
+    notes: $('#notes').value.trim() || null,
+    consent: $('#agree').checked,
+    estimatedTotal: trip.price * people + gearTotal,
+    currency: 'CAD',
+    submittedAt: new Date().toISOString(),
+    source: 'boreal-landing',
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  note.className = 'note';
+
+  const fail = (msg) => {
+    note.textContent = msg;
+    note.className = 'note on bad';
+    $('#formBody').scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  try {
+    const res  = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      /* The server re-checks everything, so show what it actually said —
+         sold out, rate limited, or a field the browser let through. */
+      if (data.fields) {
+        Object.keys(data.fields).forEach((k) => mark(k, true));
+      }
+      return fail(data.error || `Something went wrong (${res.status}).`);
+    }
+
+    $('#refCode').textContent = data.ref || '—';
+    form.style.display = 'none';
+    doneBox.classList.add('on');
+    form.reset();
+    refreshAvailability();
+
+  } catch (err) {
+    console.error('Booking failed:', err);
+    fail("Couldn't reach the booking server. Make sure it's running and try again.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Request my spot';
+  }
+});
+
+/* ═══════════════════════════════════════════════════
+   LIVE AVAILABILITY
+   The "spots left" badges are rendered server-side truth, not hardcoded —
+   so the page stops offering seats that were just taken.
+   ═══════════════════════════════════════════════════ */
+async function refreshAvailability() {
+  try {
+    const res = await fetch(AVAILABILITY);
+    if (!res.ok) return;
+    const { trips } = await res.json();
+
+    trips.forEach((t) => {
+      const el = document.querySelector(`[data-seats="${t.key}"]`);
+      if (!el) return;
+
+      const sold = t.remaining === 0;
+      el.innerHTML = sold
+        ? '<span class="pip warn"></span> Fully booked'
+        : `<span class="pip${t.remaining <= 2 ? ' warn' : ''}"></span> ${t.remaining} spot${t.remaining === 1 ? '' : 's'} left`;
+
+      const btn = document.querySelector(`[data-open="${t.key}"]`);
+      if (btn) {
+        btn.disabled = sold;
+        btn.textContent = sold ? 'Sold out' : 'Book';
+      }
+
+      const opt = tripSel.querySelector(`option[value="${t.key}"]`);
+      if (opt) opt.disabled = sold;
+    });
+  } catch { /* offline — leave the static markup as-is */ }
+}
+
+refreshAvailability();
+
+recalc();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "boreal-camps",
+  "version": "1.0.0",
+  "description": "Camping trip booking site + booking automation API. Zero runtime dependencies.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node scripts/check-airtable.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}

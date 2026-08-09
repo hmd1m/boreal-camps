@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookings — Boreal</title>
+<style>
+:root {
+  --ink:#0A0E0C; --ink-2:#101614; --surface:#141B18; --surface-2:#1A2320;
+  --line:#242F2A; --line-2:#33423B;
+  --sage:#7FBF9A; --ember:#E8A055; --rose:#E87F7F;
+  --paper:#F3F1EA; --paper-mid:#B4BEB7; --paper-dim:#7D8A83;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;background:var(--ink);color:var(--paper);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1240px;margin-inline:auto;padding:0 24px}
+h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.2}
+p{margin:0}
+
+/* ── header ── */
+header{border-bottom:1px solid var(--line);background:var(--ink-2);position:sticky;top:0;z-index:10}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:20px;height:74px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;font-weight:750;letter-spacing:.13em;font-size:1.05rem}
+.brand svg{width:23px;height:23px;color:var(--sage)}
+.brand span{color:var(--paper-dim);font-weight:500;letter-spacing:0;font-size:.88rem;
+  border-left:1px solid var(--line-2);padding-left:11px;margin-left:2px}
+.hd-r{display:flex;align-items:center;gap:12px}
+.live{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--paper-dim)}
+.blip{width:8px;height:8px;border-radius:50%;background:var(--sage);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 17px;border-radius:999px;
+  border:1px solid var(--line-2);background:transparent;color:var(--paper);
+  font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;transition:.18s;
+}
+.btn:hover{border-color:var(--sage);color:var(--sage)}
+.btn svg{width:14px;height:14px}
+
+/* ── capacity cards ── */
+.caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;padding:30px 0}
+.cap{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+.cap h3{font-size:1rem;margin-bottom:14px}
+.bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-bottom:10px}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--sage);transition:width .5s cubic-bezier(.22,.8,.32,1)}
+.bar i.warn{background:var(--ember)}
+.bar i.full{background:var(--rose)}
+.cap-n{display:flex;justify-content:space-between;font-size:.83rem;color:var(--paper-dim)}
+.cap-n b{color:var(--paper);font-weight:650}
+
+/* ── toolbar ── */
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-bottom:18px}
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.seg button{
+  border:none;background:transparent;color:var(--paper-dim);
+  font:inherit;font-size:.84rem;font-weight:600;padding:7px 15px;border-radius:8px;cursor:pointer;transition:.18s
+}
+.seg button:hover{color:var(--paper)}
+.seg button.on{background:var(--surface-2);color:var(--paper)}
+.seg button .c{opacity:.6;margin-left:5px;font-variant-numeric:tabular-nums}
+input[type=search]{
+  flex:1;min-width:180px;max-width:300px;padding:9px 14px;background:var(--surface);
+  color:var(--paper);border:1px solid var(--line);border-radius:11px;font:inherit;font-size:.88rem
+}
+input[type=search]:focus{outline:none;border-color:var(--sage)}
+
+/* ── table ── */
+.tbl{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface);margin-bottom:60px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{
+  text-align:left;font-size:.71rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--paper-dim);font-weight:700;padding:14px 18px;background:var(--ink-2);
+  border-bottom:1px solid var(--line);white-space:nowrap
+}
+td{padding:16px 18px;border-bottom:1px solid var(--line);font-size:.89rem;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .16s}
+tbody tr:hover{background:var(--surface-2)}
+
+.ref{font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:.84rem;color:var(--sage);letter-spacing:.04em;white-space:nowrap}
+.who{font-weight:640;margin-bottom:2px}
+.sub{font-size:.8rem;color:var(--paper-dim)}
+.tot{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gear{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.gear span{font-size:.72rem;background:var(--surface-2);border:1px solid var(--line);padding:2px 8px;border-radius:99px;color:var(--paper-mid)}
+.note{font-size:.8rem;color:var(--ember);margin-top:6px;max-width:230px}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;font-weight:650;
+  padding:4px 11px;border-radius:99px;white-space:nowrap}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.pending{background:rgba(232,160,85,.13);color:var(--ember)}
+.pill.confirmed{background:rgba(127,191,154,.13);color:var(--sage)}
+.pill.cancelled{background:rgba(232,127,127,.13);color:var(--rose)}
+.pill.sent{background:rgba(127,191,154,.13);color:var(--sage)}
+.pill.queued{background:rgba(180,190,183,.11);color:var(--paper-mid)}
+.pill.retrying{background:rgba(232,160,85,.13);color:var(--ember)}
+.pill.failed{background:rgba(232,127,127,.13);color:var(--rose)}
+.pill.retrying::before{animation:pulse 1.4s infinite}
+
+.acts{display:flex;gap:6px}
+.mini{
+  border:1px solid var(--line-2);background:transparent;color:var(--paper-mid);
+  font:inherit;font-size:.78rem;font-weight:600;padding:5px 11px;border-radius:8px;cursor:pointer;transition:.16s;white-space:nowrap
+}
+.mini:hover{color:var(--paper);border-color:var(--paper-dim)}
+.mini.ok:hover{color:var(--sage);border-color:var(--sage)}
+.mini.no:hover{color:var(--rose);border-color:var(--rose)}
+
+.empty{padding:70px 24px;text-align:center;color:var(--paper-dim)}
+.empty svg{width:38px;height:38px;margin-bottom:14px;opacity:.4}
+.empty h3{font-size:1.05rem;color:var(--paper-mid);margin-bottom:6px}
+.empty p{font-size:.88rem}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--surface);border:1px solid var(--line-2);border-radius:12px;
+  padding:12px 20px;font-size:.88rem;box-shadow:0 20px 50px -14px rgba(0,0,0,.7);
+  transition:transform .4s cubic-bezier(.22,.8,.32,1);z-index:50
+}
+.toast.on{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 21h18L12 2Z"/><path d="M12 11.5 7 21h10l-5-9.5Z"/></svg>
+      BOREAL <span>Bookings</span>
+    </div>
+    <div class="hd-r">
+      <div class="live"><span class="blip"></span> Auto-refreshing</div>
+      <button class="btn" id="runJobs" title="Run the scheduled jobs now instead of waiting for the next tick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Run jobs now
+      </button>
+      <button class="btn" id="refresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="caps" id="caps"></div>
+
+  <div class="tools">
+    <div class="seg" id="seg">
+      <button data-f="all" class="on">All <span class="c" id="c-all">0</span></button>
+      <button data-f="pending">Pending <span class="c" id="c-pending">0</span></button>
+      <button data-f="confirmed">Confirmed <span class="c" id="c-confirmed">0</span></button>
+      <button data-f="cancelled">Cancelled <span class="c" id="c-cancelled">0</span></button>
+    </div>
+    <input type="search" id="q" placeholder="Search name, email, reference…">
+  </div>
+
+  <div class="tbl">
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th>Reference</th><th>Guest</th><th>Trip</th><th>People</th>
+            <th>Total</th><th>Airtable</th><th>Status</th><th>Booked</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 21h18L12 2Z"/><path d="M12 11.5 7 21h10l-5-9.5Z"/></svg>
+      <h3>No bookings yet</h3>
+      <p>Submit the form on the landing page — it'll appear here within two seconds.</p>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+
+const GEAR_LABEL = {
+  'tent':'Extra tent', 'sleeping-bag':'Sleeping bag',
+  'backpack':'60L backpack', 'boots':'Hiking boots',
+};
+
+let bookings = [];
+let trips = [];
+let filter = 'all';
+let query = '';
+
+/* A token is only needed if the server was started with ADMIN_TOKEN set. */
+const token = localStorage.getItem('boreal_admin_token');
+const headers = token ? { 'x-admin-token': token } : {};
+
+const money = (n) => '$' + Number(n).toLocaleString('en-CA');
+
+function when(iso) {
+  const d = new Date(iso);
+  const mins = Math.round((Date.now() - d) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  if (mins < 1440) return Math.round(mins / 60) + 'h ago';
+  return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+}
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('on'), 2600);
+}
+
+async function fetchAll() {
+  try {
+    const res = await fetch('/api/bookings', { headers });
+    if (res.status === 401) {
+      const t = prompt('Admin token required:');
+      if (t) { localStorage.setItem('boreal_admin_token', t); location.reload(); }
+      return;
+    }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    bookings = data.bookings ?? [];
+    trips = data.trips ?? [];
+    render();
+  } catch (err) {
+    console.error(err);
+    toast("Couldn't reach the server");
+  }
+}
+
+function renderCaps() {
+  $('#caps').innerHTML = trips.map((t) => {
+    const taken = t.capacity - t.remaining;
+    const pct = Math.round((taken / t.capacity) * 100);
+    const cls = t.remaining === 0 ? 'full' : t.remaining <= 2 ? 'warn' : '';
+    return `
+      <div class="cap">
+        <h3>${t.label}</h3>
+        <div class="bar"><i class="${cls}" style="width:${pct}%"></i></div>
+        <div class="cap-n">
+          <span><b>${t.remaining}</b> of ${t.capacity} left</span>
+          <span>${new Date(t.departs).toLocaleDateString('en-CA',{month:'short',day:'numeric'})}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderCounts() {
+  $('#c-all').textContent = bookings.length;
+  for (const s of ['pending','confirmed','cancelled']) {
+    $('#c-' + s).textContent = bookings.filter(b => b.status === s).length;
+  }
+}
+
+function visible() {
+  const q = query.trim().toLowerCase();
+  return bookings.filter((b) => {
+    if (filter !== 'all' && b.status !== filter) return false;
+    if (!q) return true;
+    return [b.ref, b.contact.name, b.contact.email, b.contact.phone, b.trip.label]
+      .join(' ').toLowerCase().includes(q);
+  });
+}
+
+function render() {
+  renderCaps();
+  renderCounts();
+
+  const list = visible();
+  $('#empty').hidden = list.length > 0;
+  $('#empty').querySelector('h3').textContent =
+    bookings.length === 0 ? 'No bookings yet' : 'Nothing matches that filter';
+
+  $('#rows').innerHTML = list.map((b) => `
+    <tr>
+      <td><span class="ref">${b.ref}</span></td>
+      <td>
+        <div class="who">${esc(b.contact.name)}</div>
+        <div class="sub">${esc(b.contact.email)}</div>
+        <div class="sub">${esc(b.contact.phone)}${b.contact.city ? ' · ' + esc(b.contact.city) : ''}</div>
+      </td>
+      <td>
+        <div class="who">${esc(b.trip.label)}</div>
+        <div class="sub">Departs ${new Date(b.trip.departs).toLocaleDateString('en-CA',{month:'short',day:'numeric'})}</div>
+        ${b.gear?.length ? `<div class="gear">${b.gear.map(g=>`<span>${GEAR_LABEL[g] ?? g}</span>`).join('')}</div>` : ''}
+        ${b.notes ? `<div class="note">⚠ ${esc(b.notes)}</div>` : ''}
+      </td>
+      <td>${b.people}</td>
+      <td class="tot">${money(b.pricing.total)}</td>
+      <td>${syncCell(b)}</td>
+      <td><span class="pill ${b.status}">${b.status}</span></td>
+      <td class="sub">${when(b.createdAt)}</td>
+      <td>
+        <div class="acts">
+          ${b.status !== 'confirmed' ? `<button class="mini ok" data-ref="${b.ref}" data-to="confirmed">Confirm</button>` : ''}
+          ${b.status !== 'cancelled' ? `<button class="mini no" data-ref="${b.ref}" data-to="cancelled">Cancel</button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+/* Delivery state for the Airtable pipeline — the automation's own status,
+   separate from the booking's business status. */
+function syncCell(b) {
+  const s = b.sync?.airtable;
+
+  if (!s || s.status === 'queued') return `<span class="pill queued">queued</span>`;
+
+  if (s.status === 'sent') {
+    return `<span class="pill sent">${s.dryRun ? 'dry run' : 'synced'}</span>` +
+      (s.attempts > 1 ? `<div class="sub">after ${s.attempts} tries</div>` : '');
+  }
+
+  if (s.status === 'retrying') {
+    return `<span class="pill retrying">retrying</span>` +
+      `<div class="sub">attempt ${s.attempts}</div>`;
+  }
+
+  return `<span class="pill failed">failed</span>` +
+    `<div class="sub" title="${esc(s.lastError)}">${esc((s.lastError || '').slice(0, 40))}</div>` +
+    `<button class="mini" data-retry="${b.ref}">Retry</button>`;
+}
+
+/* booking data is customer-supplied — escape before it touches innerHTML */
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+
+async function setStatus(ref, status) {
+  try {
+    const res = await fetch('/api/bookings/' + ref, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json', ...headers },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    toast(`${ref} → ${status}`);
+    fetchAll();
+  } catch {
+    toast('Update failed');
+  }
+}
+
+/* ── events ── */
+$('#rows').addEventListener('click', async (e) => {
+  const status = e.target.closest('[data-ref]');
+  if (status) return setStatus(status.dataset.ref, status.dataset.to);
+
+  const again = e.target.closest('[data-retry]');
+  if (again) {
+    await fetch(`/api/bookings/${again.dataset.retry}/retry`, { method: 'POST', headers });
+    toast(`Re-queued ${again.dataset.retry}`);
+    fetchAll();
+  }
+});
+
+$('#runJobs').addEventListener('click', async () => {
+  try {
+    const res = await fetch('/api/scheduler/run', { method: 'POST', headers });
+    const d = await res.json();
+    toast(`Jobs ran — ${d.reminders ?? 0} reminder(s), ${d.chases ?? 0} to chase, ${d.requeued ?? 0} re-queued`);
+    fetchAll();
+  } catch {
+    toast('Could not run jobs');
+  }
+});
+
+$('#seg').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-f]');
+  if (!btn) return;
+  filter = btn.dataset.f;
+  [...$('#seg').children].forEach(b => b.classList.toggle('on', b === btn));
+  render();
+});
+
+$('#q').addEventListener('input', (e) => { query = e.target.value; render(); });
+$('#refresh').addEventListener('click', () => { fetchAll(); toast('Refreshed'); });
+
+fetchAll();
+setInterval(fetchAll, 2000);   // slow poll — fine for a single-operator dashboard
+</script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+# secrets — never commit
+.env
+
+# runtime data
+data/bookings.json
+data/*.tmp
+
+node_modules/
